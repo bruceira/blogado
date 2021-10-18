@@ -2,6 +2,8 @@ const express = require("express")
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
 const Article = require("./src/model/articleModel")
+const controllers = require("./src/controllers/controller")
+const User = require("./src/model/userModel")
 
 dotenv.config()
 
@@ -47,6 +49,18 @@ function server() {
   app.put("/api/updateArticle/:id", async (req, res) => {
 
   })
+
+  //user
+
+
+  app.get("/allUsers", async (req, res) => {
+    const user = await User.find()
+    res.json(user)
+  })
+
+
+  app.post("/signup", controllers.signup)
+  app.post("/login", controllers.login)
 
   app.listen(PORT, () => console.log(`server is running on port ${PORT}`))
 }
