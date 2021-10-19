@@ -39,9 +39,19 @@ function server() {
 
   // add new article
   app.post("/api/newArticle", auth, async (req, res) => {
-    const article = await new Article(req.body)
-    article.save()
-    res.json(article)
+    try {
+      const article = await new Article(req.body)
+
+      if (!article.title || !article.description) {
+        return res.send("no required")
+      }
+
+
+      article.save()
+      res.json(article)
+    } catch (error) {
+
+    }
   })
 
   // delete article

@@ -1,10 +1,10 @@
 const mongoose = require("mongoose")
 
 const articleSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String, required: [true, "must have the title"], unique: true },
   description: { type: String, required: true },
-  createdAt: { type: Date, defaut: new Date() },
-  roles: { type: String, default: "user" }
+  roles: { type: String, default: "user" },
+  date: { type: Date, default: Date.now },
 })
 
 module.exports = mongoose.model("Article", articleSchema)

@@ -15,8 +15,6 @@ const protect = (req, res, next) => {
     if (!token) {
       return res.status(401).json("a token is required")
     }
-
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
     req.user = decoded
@@ -25,6 +23,7 @@ const protect = (req, res, next) => {
   } catch (error) {
 
     console.log(error)
+
   }
 
   return next()
