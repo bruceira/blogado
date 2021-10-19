@@ -4,6 +4,7 @@ const dotenv = require("dotenv")
 const Article = require("./src/model/articleModel")
 const controllers = require("./src/controllers/controller")
 const User = require("./src/model/userModel")
+const auth = require("./src/middleware/auth")
 
 dotenv.config()
 
@@ -21,17 +22,23 @@ function server() {
   // get all articles
   app.get("/api/allArticle", async (req, res) => {
     const article = await Article.find()
-    res.json(article)
+    res.json({
+      status: "success", data: {
+        results: article.length, article
+      }
+    })
   })
 
-  app.get("/api/article/:id", async (req, res) => {
+
+  //get one article
+  app.get("/api/article/:id", auth, async (req, res) => {
     const article = await Article.findById(req.params.id)
     res.json(article)
   })
 
 
   // add new article
-  app.post("/api/newArticle", async (req, res) => {
+  app.post("/api/newArticle", auth, async (req, res) => {
     const article = await new Article(req.body)
     article.save()
     res.json(article)
@@ -39,7 +46,7 @@ function server() {
 
   // delete article
 
-  app.delete("/api/deleteArticle/:id", async (req, res) => {
+  app.delete("/api/deleteArticle/:id", auth, async (req, res) => {
     const article = await Article.findByIdAndDelete(req.params.id)
     res.json()
   })
