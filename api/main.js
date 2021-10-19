@@ -4,7 +4,7 @@ const dotenv = require("dotenv")
 const Article = require("./src/model/articleModel")
 const controllers = require("./src/controllers/controller")
 const User = require("./src/model/userModel")
-const auth = require("./src/middleware/auth")
+const { protect, protectTokenByAdmin } = require("./src/middleware/auth")
 
 dotenv.config()
 
@@ -31,14 +31,14 @@ function server() {
 
 
   //get one article
-  app.get("/api/article/:id", auth, async (req, res) => {
+  app.get("/api/article/:id", protect, async (req, res) => {
     const article = await Article.findById(req.params.id)
     res.json(article)
   })
 
 
   // add new article
-  app.post("/api/newArticle", auth, async (req, res) => {
+  app.post("/api/newArticle", protect, async (req, res) => {
     try {
       const article = await new Article(req.body)
 
@@ -56,14 +56,14 @@ function server() {
 
   // delete article
 
-  app.delete("/api/deleteArticle/:id", auth, async (req, res) => {
+  app.delete("/api/deleteArticle/:id", protect, protectTokenByAdmin("admin"), async (req, res) => {
     const article = await Article.findByIdAndDelete(req.params.id)
     res.json()
   })
 
   //update article
 
-  app.put("/api/updateArticle/:id", auth, async (req, res) => {
+  app.put("/api/updateArticle/:id", protect, protectTokenByAdmin("admin"), async (req, res) => {
 
     const article = await Article.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
     res.status(200).json(article)

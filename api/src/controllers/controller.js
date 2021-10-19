@@ -6,9 +6,9 @@ require("dotenv").config()
 
 exports.signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body
+    const { firstName, lastName, email, password, role } = req.body
 
-    if (!(email && firstName && lastName && password)) {
+    if (!(email && firstName && lastName && password, role)) {
       res.status(400).json({ message: "no required" })
     }
 
@@ -24,7 +24,9 @@ exports.signup = async (req, res) => {
       firstName,
       lastName,
       email,
-      password: encryptedPassword
+      password: encryptedPassword,
+      role
+
     })
 
 

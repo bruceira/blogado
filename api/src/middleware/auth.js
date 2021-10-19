@@ -29,4 +29,24 @@ const protect = (req, res, next) => {
   return next()
 }
 
-module.exports = protect
+const protectTokenByAdmin = (...roles) => {
+
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next()
+    } else {
+      res.status(403).json("u are not alowed to do that!!")
+
+    }
+    next()
+  }
+  // protect(req, res, () => {
+  //   if (req.user.id === req.params.id || req.user.isAdmin) {
+  //     next()
+  //   } else {
+  //     res.status(403).json("u are not alowed to do that!!")
+  //   }
+  // })
+}
+
+module.exports = { protect, protectTokenByAdmin }
