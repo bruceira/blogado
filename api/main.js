@@ -63,7 +63,10 @@ function server() {
 
   //update article
 
-  app.put("/api/updateArticle/:id", async (req, res) => {
+  app.put("/api/updateArticle/:id", auth, async (req, res) => {
+
+    const article = await Article.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    res.status(200).json(article)
 
   })
 
