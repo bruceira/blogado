@@ -4,71 +4,39 @@ const User = require("../model/userModel")
 require("dotenv").config()
 
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body
-
-    if (!(email && firstName && lastName && password, role)) {
-      res.status(400).json({ message: "no required" })
-    }
-
-    const olduser = await User.findOne({ email }).select("+password")
-
-    if (olduser) {
-      res.status(406).send("not valid")
-    }
-
-    const encryptedPassword = await bcrypt.hash(password, 12)
-
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      password: encryptedPassword,
-      role
-
-    })
-
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRESIN })
-    console.log(token)
-
-    user.token = token
-
-    res.status(201).json(user)
+    const newUser = await User.create(req.body)
+    let token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRESIN })
+    res.status(201).json({ status: "success", token, data: { user: newUser } })
   } catch (error) {
     console.log(error)
-    res.status(404).json({ error })
+    res.status(404).json({ status: "Fail", error })
   }
-
-
+  next()
 }
 
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body
-
-    if (!(email && password)) {
-      res.status(403).json({ status: "fail" })
+    if (!email || !password) {
+      return res.status(401).send("plz provide email and password")
     }
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).select("+password")
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-
-
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRESIN })
-      console.log(token)
-
-      user.token = token
-
-
-
+    if (!user || !(await user.correctPassword(password, user.password))) {
+      return res.status(406).send("email or password not correct")
     }
-    res.status(200).json(user)
+    let token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRESIN })
+    req.user = token
+    res.status(200).json({ status: "success", token })
   } catch (error) {
+
     console.log(error)
+
   }
 
+  next()
 }
