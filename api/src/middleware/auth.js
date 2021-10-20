@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 require("dotenv").config()
 
 
-const protect = (req, res, next) => {
+exports.protect = (req, res, next) => {
   try {
 
     let token
@@ -19,17 +19,20 @@ const protect = (req, res, next) => {
 
     req.user = decoded
 
+    console.log(decoded)
+
 
   } catch (error) {
 
     console.log(error)
+    res.status(404).json("invalid signature")
 
   }
 
   return next()
 }
 
-const protectTokenByAdmin = (...roles) => {
+exports.protectTokenByAdmin = (...roles) => {
 
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -40,13 +43,6 @@ const protectTokenByAdmin = (...roles) => {
     }
     next()
   }
-  // protect(req, res, () => {
-  //   if (req.user.id === req.params.id || req.user.isAdmin) {
-  //     next()
-  //   } else {
-  //     res.status(403).json("u are not alowed to do that!!")
-  //   }
-  // })
+
 }
 
-module.exports = { protect, protectTokenByAdmin }

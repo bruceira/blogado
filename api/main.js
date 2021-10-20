@@ -4,7 +4,7 @@ const dotenv = require("dotenv")
 const Article = require("./src/model/articleModel")
 const controllers = require("./src/controllers/controller")
 const User = require("./src/model/userModel")
-const { protect, protectTokenByAdmin } = require("./src/middleware/auth")
+const auth = require("./src/middleware/auth")
 
 dotenv.config()
 
@@ -31,39 +31,40 @@ function server() {
 
 
   //get one article
-  app.get("/api/article/:id", protect, async (req, res) => {
+  app.get("/api/article/:id", auth.protect, auth.protectTokenByAdmin("admin"), async (req, res) => {
     const article = await Article.findById(req.params.id)
     res.json(article)
   })
 
 
   // add new article
-  app.post("/api/newArticle", protect, async (req, res) => {
+  app.post("/api/newArticle", async (req, res) => {
     try {
       const article = await new Article(req.body)
 
       if (!article.title || !article.description) {
-        return res.send("no required")
+        return res.send("plz provide title and description")
       }
+
 
 
       article.save()
       res.json(article)
     } catch (error) {
-
+      res.send("fail")
     }
   })
 
   // delete article
 
-  app.delete("/api/deleteArticle/:id", protect, protectTokenByAdmin("admin"), async (req, res) => {
+  app.delete("/api/deleteArticle/:id", async (req, res) => {
     const article = await Article.findByIdAndDelete(req.params.id)
     res.json()
   })
 
   //update article
 
-  app.put("/api/updateArticle/:id", protect, protectTokenByAdmin("admin"), async (req, res) => {
+  app.put("/api/updateArticle/:id", async (req, res) => {
 
     const article = await Article.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
     res.status(200).json(article)
