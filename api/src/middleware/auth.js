@@ -35,11 +35,8 @@ exports.protect = (req, res, next) => {
 exports.protectTokenByAdmin = (...roles) => {
 
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next()
-    } else {
-      res.status(403).json("u are not alowed to do that!!")
-
+    if (!roles.includes(req.user.roles)) {
+      return res.status(403).send("u are not alowed to do that!!")
     }
     next()
   }
